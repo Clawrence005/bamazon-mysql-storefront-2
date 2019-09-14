@@ -1,6 +1,7 @@
-// creates the connection in mysql
+// creates the connection in mysql: requiring inquirer.
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+const chalk = require('chalk');
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -8,22 +9,29 @@ var connection = mysql.createConnection({
   password: "password",
   database: "bamazon_db"
 });
+// requiring and importing the customer and manager files
 var customerPortal = require("./customer.js");
 var employeePortal = require("./manager.js");
 
+// connects to the database and shows the connection
 connection.connect(function (err) {
   if (err) throw err;
-  console.log("connected as: " + connection.threadId);
+  console.log("connected as id :" + connection.threadId);
   startFunction();
 });
-// the first function called asks which portal you would like to enter
+// the start function called asks which portal you would like to enter
+
 function startFunction() {
-  console.log("hello im the start")
+
+  console.clear();
+  console.log("hello im the startFunction");
+
   inquirer
     .prompt({
       name: "action",
       type: "list",
-      message: "Are you a Customer or Employee?",
+      message: console.log(chalk.blue(`Welcome to ${chalk.whiteBright.bold('BAMAZON')} CLI Storehouse. 
+      Are you a Customer or Employee?`)),
       choices: [
         "Customer",
         "Employee",
