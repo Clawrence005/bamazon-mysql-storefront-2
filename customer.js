@@ -1,9 +1,27 @@
-const mysql = require("mysql");
-const inquirer = require("inquirer");
+// creates the connection in mysql: requiring inquirer.
+var mysql = require("mysql");
+var inquirer = require("inquirer");
+const chalk = require('chalk');
+var connection = mysql.createConnection({
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "password",
+  database: "bamazon_db"
+});
+var employeePortal = require("./manager.js");
 // const table = require("table");
 
+// connects to the database and shows the connection
+connection.connect(function (err) {
+  if (err) throw err;
+  console.log("connected as id :" + connection.threadId);
+
+});
+
 var Customer = function customerPortal() {
-  var inquirer = require('inquirer');
+  console.log("connection :", connection)
+  // var inquirer = require('inquirer');
 
   //offer a list of options to go back
   function goBackCustomer() {
@@ -11,104 +29,94 @@ var Customer = function customerPortal() {
       message: "What would you like to do next?",
       type: "list",
       name: "action",
-      choices: ["go back to Customer Portal", "proceed to Employee Portal", "exit"]
+      choices: ["go back to Customer Portal", "proceed to Employee Portal", "Exit"]
     }).then(function (answer) {
       if (answer.action === "go back to Customer Portal") {
         customerPortal();
       } else if (answer.action === "proceed to Employees Portal") {
         //need to export this
-        // employeePortal();
+        employeePortal();
 
-      } else if (answer.action === "exit") {
-        connection.end()
+      } else if (answer.action === "Exit") {
+        connection.end();
       }
+
     })
   }
-
-  function A() {
-    console.log(`
-    i did A
-    `);
-    goBackCustomer();
-  }
-
-  function B() {
-    console.log(`
-    i just did B
-    `);
-    goBackCustomer();
-  }
-  function C() {
-    console.log(`
-    just did C
-    `);
-
-    goBackCustomer();
-  }
-
 
   inquirer
     .prompt({
       message: "What would you like to do in the Customer Portal?",
       type: "list",
       name: "action",
-      choices: ["A", "B", "C", "D"]
+
+      choices: ["Browse Store Inventory", "View Low Inventory", "Add New Product", "Add to Inventory", "Delete Item from Inventory", "Exit"]
     }).then(function (answer) {
-      if (answer.action === "A") {
-        A();
-      } else if (answer.action === "B") {
-        B();
-      } else if (answer.action === "C") {
-        C();
-      } else if (answer.action === "D") {
-        connection.end();
+      if (answer.action === "Browse Store Inventory") {
+        viewInventory();
+      } else if (answer.action === "View Low Inventory") {
+        viewLowInventory();
+      } else if (answer.action === "Add New Product") {
+        addNewProduct();
+      } else if (answer.action === "Add to Inventory") {
+        addToLowInventory();
+      } else if (answer.action === "Delete Item from Inventory") {
+        deleteProduct();
+      } else if (answer.action === "Exit") {
+
+        console.log("You have exited!")
+        connection.end(function (err) {
+          console.log("err", err)
+          process.exit();
+        });
       }
     })
 
-  /*
-  
-  
-  async function run() {
-    await one();
-    await two();
-    three();
-  }
-  run();
-  
-    //  "Browse Store Inventory"
-        viewInventory();
-  
-    //  "View Low Inventory"
-        viewLowInventory();
-  
-    //  "Add New Product"
-        addNewProduct();
-  
-    //  "Add to Inventory"
-        addToLowInventory();
-  
-    //  "Delete Item from Inventory"
-        deleteProduct();
-  */
-  /*()
-  inquirer
-      .prompt({
-        name: "action",
-        type: "list",
-        message: "Are you a Customer or Employee?",
-        choices: [
-          "Customer",
-          "Employee",
-          "Exit"
-        ]
-      }).then(function (answer) {
-        if (answer.action === "Employee") {
-          employeePortal();
-        } else if (answer.action === "Customer") {
-          customerPortal();
-        } else if (answer.action === "Exit") {
-          connection.end();
-        }
-        */
+  //  "Browse Store Inventory"
+  function viewInventory() {
+    console.log(`
+    i did A
+
+    `);
+    //option menu to go back
+    goBackCustomer();
+  };
+
+  //  "View Low Inventory"
+  function viewLowInventory() {
+    console.log(`
+    i did b
+    `);
+    //option menu to go back
+    goBackCustomer();
+  };
+
+  //  "Add New Product"
+  function addNewProduct() {
+    console.log(`
+    i did c
+    `);
+    //option menu to go back
+    goBackCustomer();
+  };
+
+  //  "Add to Inventory"
+  function addToLowInventory() {
+    console.log(`
+    i did d
+    `);
+    //option menu to go back
+    goBackCustomer();
+  };
+
+  //  "Delete Item from Inventory"
+  function deleteProduct() {
+    console.log(`
+    i did e
+    `);
+    //option menu to go back
+    goBackCustomer();
+  };
+
 }
 module.exports = Customer;

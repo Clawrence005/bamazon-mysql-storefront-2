@@ -22,8 +22,8 @@ connection.connect(function (err) {
 // the start function called asks which portal you would like to enter
 
 function startFunction() {
-
-  console.clear();
+  console.log("connection :", connection)
+  // console.clear();
   console.log("hello im the startFunction");
 
   inquirer
@@ -41,7 +41,9 @@ function startFunction() {
       if (answer.action === "Employee") {
         employeePortal();
       } else if (answer.action === "Customer") {
+
         customerPortal();
+
       } else if (answer.action === "Exit") {
         connection.end();
       }
