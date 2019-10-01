@@ -109,8 +109,6 @@ var Customer = function customerPortal() {
       }
       let output = table.table(data);
 
-      console.log("-------------------------- BAMAZON --------------------------");
-      console.log("--------------------------- ITEMS ---------------------------");
       console.log(output);
 
       goBackCustomer();
