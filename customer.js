@@ -2,6 +2,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 const chalk = require('chalk');
+var table = require('table');
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -66,21 +67,56 @@ var Customer = function customerPortal() {
 
         console.log("You have exited!")
         connection.end(function (err) {
-          console.log("err", err)
           process.exit();
         });
       }
     })
 
-  //  "Browse Store Inventory"
-  function viewInventory() {
-    console.log(`
-    i did A
+  // //  "Browse Store Inventory"
+  // function viewInventory() {
+  //   console.log(`
+  //   i did A
 
-    `);
-    //option menu to go back
-    goBackCustomer();
-  };
+  //   `);
+  //   //option menu to go back
+  //   goBackCustomer();
+  // };
+
+
+  function viewInventory() {
+    // query the   
+    // import {
+    //   table
+    // } from 'table';
+
+
+
+
+
+
+    connection.query("SELECT * FROM products", function (err, res) {
+      let data = [
+        ["", "", 'BAMAZON ITEMS IN STOCK', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
+      ];
+      for (let i = 0; i < res.length; i++) {
+        data.push([
+          res[i].product_name,
+          res[i].item_id,
+          res[i].department_name,
+          res[i].price,
+          res[i].stock_quantity,
+        ]);
+      }
+      let output = table.table(data);
+
+      console.log("-------------------------- BAMAZON --------------------------");
+      console.log("--------------------------- ITEMS ---------------------------");
+      console.log(output);
+
+      goBackCustomer();
+    });
+
+  }
 
   //  "View Low Inventory"
   function viewLowInventory() {
