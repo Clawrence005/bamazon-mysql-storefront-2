@@ -16,14 +16,10 @@ var employeePortal = require("./manager.js");
 // connects to the database and shows the connection
 connection.connect(function (err) {
   if (err) throw err;
-  console.log("connected as id :" + connection.threadId);
-
+  // console.log("connected as id :" + connection.threadId);
 });
 
 var Customer = function customerPortal() {
-  console.log("connection :", connection)
-  // var inquirer = require('inquirer');
-
   //offer a list of options to go back
   function goBackCustomer() {
     inquirer.prompt({
@@ -51,7 +47,7 @@ var Customer = function customerPortal() {
       type: "list",
       name: "action",
 
-      choices: ["Browse Store Inventory", "View Low Inventory", "Add New Product", "Add to Inventory", "Delete Item from Inventory", "Exit"]
+      choices: ["Browse Store Inventory", "View Low Inventory", "Add New Product", "Change Amount in Inventory", "Delete Item from Inventory", "Exit"]
     }).then(function (answer) {
       if (answer.action === "Browse Store Inventory") {
         viewInventory();
@@ -59,7 +55,7 @@ var Customer = function customerPortal() {
         viewLowInventory();
       } else if (answer.action === "Add New Product") {
         addNewProduct();
-      } else if (answer.action === "Add to Inventory") {
+      } else if (answer.action === "Change Amount in Inventory") {
         addToLowInventory();
       } else if (answer.action === "Delete Item from Inventory") {
         deleteProduct();
@@ -71,17 +67,6 @@ var Customer = function customerPortal() {
         });
       }
     })
-
-  // //  "Browse Store Inventory"
-  // function viewInventory() {
-  //   console.log(`
-  //   i did A
-
-  //   `);
-  //   //option menu to go back
-  //   goBackCustomer();
-  // };
-
 
   function viewInventory() {
     connection.query("SELECT * FROM products", function (err, res) {
@@ -106,24 +91,6 @@ var Customer = function customerPortal() {
     });
 
   }
-
-
-  //   function viewLowInventory() {
-  //     connection.query("SELECT count(*),item_id, product_name, department_name, price, stock_quantity FROM products WHERE stock_quantity <= 5 group by item_id, product_name, department_name, price, stock_quantity ORDER BY stock_quantity", function (err, res) {
-  //         console.log("-------------------------------------------------------------");
-  //         console.log("---------------- ITEMS quantity less than 5 -----------------");
-  //         console.log("id | product | department | price | quantity on hand");
-  //         console.log("-------------------------------------------------------------");
-  //         for (var i = 0; i < res.length; i++) {
-
-  //             console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity)
-  //         }
-  //         console.log("-------------------------------------------------------------")
-  //         employeePortal();
-  //     })
-
-  // }
-
 
   //  "View Low Inventory"
   function viewLowInventory() {
@@ -160,23 +127,77 @@ var Customer = function customerPortal() {
     goBackCustomer();
   };
 
-  //  "Add to Inventory"
   function addToLowInventory() {
-    console.log(`
-    i did d
-    `);
-    //option menu to go back
-    goBackCustomer();
-  };
+    //id like to show the table here
+    inquirer
+      .prompt([
+        {
+          name: "item",
+          type: "input",
+          message: "What is the item id number you would like to add to?"
+        },
+        {
+          name: "quantity",
+          type: "input",
+          message: "What is the total amount you would like?",
+          validate: function (value) {
+            if (isNaN(value)) {
+              return false;
+            } else {
+              return true;
+            }
+          }
+        }
+      ])
+      .then(function (answer) {
+        connection.query(
 
-  //  "Delete Item from Inventory"
+          "UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?",
+
+          [answer.quantity, answer.item],
+          function (err) {
+            if (err) throw err;
+            //it'd be nice to show the final table cell update and name here
+            console.log(`You have successfully updated ${answer.item} quantity to ${answer.quantity}`);
+            //go back function
+            goBackCustomer();
+          }
+        );
+      })
+  }
+
+
   function deleteProduct() {
-    console.log(`
-    i did e
-    `);
-    //option menu to go back
-    goBackCustomer();
-  };
-
+    inquirer
+      .prompt([
+        {
+          name: "item",
+          type: "input",
+          message: "What is the item id of the item you would like to delete?",
+          validate: function (value) {
+            if (isNaN(value)) {
+              return false;
+            } else {
+              return true;
+            }
+          }
+        }
+      ])
+      .then(function (answer) {
+        connection.query(
+          "DELETE FROM products WHERE ?",
+          [{
+            item_id: answer.item
+          }],
+          function (err) {
+            if (err) throw err;
+            //it'd be nice to show the final table cell update and name here
+            console.log(`You have successfully deleted inventory with the item Id ${answer.item}!`);
+            //go back function
+            goBackCustomer();
+          }
+        );
+      })
+  }
 }
 module.exports = Customer;
