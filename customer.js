@@ -118,14 +118,66 @@ var Customer = function customerPortal() {
 
   }
 
-  //  "Add New Product"
+  // //  "Add New Product"
+  // function addNewProduct() {
+  //   console.log(`
+  //   i did c
+  //   `);
+  //   //option menu to go back
+  //   goBackCustomer();
+  // };
+
   function addNewProduct() {
-    console.log(`
-    i did c
-    `);
-    //option menu to go back
-    goBackCustomer();
-  };
+    // prompt for info about the item being put up for auction
+    inquirer
+      .prompt([
+        {
+          name: "item",
+          type: "input",
+          message: "What is the name of the item you would like to submit?"
+        },
+        {
+          name: "dept",
+          type: "input",
+          message: "Which department would you like to place your item in?"
+        },
+        {
+          name: "price",
+          type: "input",
+          message: "What would you like the price to be?",
+          validate: function (value) {
+            if (isNaN(value)) {
+              return false;
+            } else {
+              return true;
+            }
+          }
+        },
+        {
+          name: "quantity",
+          type: "input",
+          message: "How many items do you have?",
+        }
+      ])
+      .then(function (answer) {
+        // when finished prompting, insert a new item into the db with that info
+        connection.query(
+          "INSERT INTO products SET ?",
+          {
+            product_name: answer.item,
+            department_name: answer.dept,
+            price: answer.price,
+            stock_quantity: answer.quantity
+          }, function (err) {
+            if (err) throw err;
+            console.log(`Your item ${answer.item} was created successfully in the ${answer.dept}! department`);
+            //go back function
+            goBackCustomer();
+          }
+        );
+      });
+
+  }
 
   function addToLowInventory() {
     //id like to show the table here
@@ -139,14 +191,7 @@ var Customer = function customerPortal() {
         {
           name: "quantity",
           type: "input",
-          message: "What is the total amount you would like?",
-          validate: function (value) {
-            if (isNaN(value)) {
-              return false;
-            } else {
-              return true;
-            }
-          }
+          message: "What is the total amount you would like?"
         }
       ])
       .then(function (answer) {
