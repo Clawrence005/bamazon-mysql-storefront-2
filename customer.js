@@ -84,19 +84,9 @@ var Customer = function customerPortal() {
 
 
   function viewInventory() {
-    // query the   
-    // import {
-    //   table
-    // } from 'table';
-
-
-
-
-
-
     connection.query("SELECT * FROM products", function (err, res) {
       let data = [
-        ["", "", 'BAMAZON ITEMS IN STOCK', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
+        ["", "", 'BAMAZON ITEMS INVENTORY', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
       ];
       for (let i = 0; i < res.length; i++) {
         data.push([
@@ -108,7 +98,8 @@ var Customer = function customerPortal() {
         ]);
       }
       let output = table.table(data);
-
+      console.log(`
+      `);
       console.log(output);
 
       goBackCustomer();
@@ -116,14 +107,49 @@ var Customer = function customerPortal() {
 
   }
 
+
+  //   function viewLowInventory() {
+  //     connection.query("SELECT count(*),item_id, product_name, department_name, price, stock_quantity FROM products WHERE stock_quantity <= 5 group by item_id, product_name, department_name, price, stock_quantity ORDER BY stock_quantity", function (err, res) {
+  //         console.log("-------------------------------------------------------------");
+  //         console.log("---------------- ITEMS quantity less than 5 -----------------");
+  //         console.log("id | product | department | price | quantity on hand");
+  //         console.log("-------------------------------------------------------------");
+  //         for (var i = 0; i < res.length; i++) {
+
+  //             console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity)
+  //         }
+  //         console.log("-------------------------------------------------------------")
+  //         employeePortal();
+  //     })
+
+  // }
+
+
   //  "View Low Inventory"
   function viewLowInventory() {
-    console.log(`
-    i did b
+    connection.query("SELECT count(*),item_id, product_name, department_name, price, stock_quantity FROM products WHERE stock_quantity <= 5 group by item_id, product_name, department_name, price, stock_quantity ORDER BY stock_quantity", function (err, res) {
+      let data = [
+        ["", "", 'LOW ITEMS INVENTORY', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
+      ];
+      for (let i = 0; i < res.length; i++) {
+        data.push([
+          res[i].product_name,
+          res[i].item_id,
+          res[i].department_name,
+          res[i].price,
+          res[i].stock_quantity,
+        ]);
+      }
+      let output = table.table(data);
+      console.log(`
     `);
-    //option menu to go back
-    goBackCustomer();
-  };
+      console.log(output);
+
+      //option menu to go back
+      goBackCustomer();
+    });
+
+  }
 
   //  "Add New Product"
   function addNewProduct() {
