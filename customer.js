@@ -84,27 +84,93 @@ var Customer = function customerPortal() {
 
       goBackCustomer();
     });
-
   }
-  function buyInventory() {
-    inquirer
-      .prompt([
-        {
-          name: "item",
-          type: "input",
-          message: "What is the item ID of the item would you like to buy?"
-        },
-        {
-          name: "quantity",
-          type: "input",
-          message: "How many would you like?"
-        }
-      ])
-      .then(function (answer) {
-        connection.query(
+  // get the item by id
+  // need to compare the desired orderQuantity from the actual amout
+  // if (the amount is equal to or greater) {than you can buy it}
+  // else { send error that the amount is insufficent and go back to portal}
 
-        )
-      })
+
+  function buyInventory() {
+    // shows the user the inventory first
+    connection.query("SELECT * FROM products", function (err, res) {
+      let data = [
+        ["", "", 'BAMAZON ITEMS INVENTORY', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
+      ];
+      for (let i = 0; i < res.length; i++) {
+        data.push([
+          res[i].product_name,
+          (chalk.blue(` ${res[i].item_id}`)),
+          res[i].department_name,
+          (`$ ${res[i].price}`),
+          res[i].stock_quantity,
+        ]);
+      }
+      let output = table.table(data);
+      console.log(`
+      `);
+      console.log(output);
+      if (err) throw err;
+      inquirer
+        .prompt([
+          {
+            name: "item",
+            type: "input",
+            message: "What is the item id you would like to buy?"
+          },
+          {
+            name: "quantity",
+            type: "input",
+            message: "How many items would you like to buy?"
+          },
+        ])
+        .then(function (answer) {
+          console.log(`
+          answer  ${answer.item}
+
+          `)
+
+          connection.query("SELECT  product_name, item_id, department_name, price, stock_quantity FROM products where item_id = ? group by product_name, item_id, department_name, price, stock_quantity",
+            [answer.item],
+            function (err, res) {
+              console.log('res', res);
+              let orderID = res[0].item_id;
+
+              let orderQuantity = answer.quantity;
+              if (orderQuantity <= res[0].stock_quantity) {
+                let newQuantity = res[0].stock_quantity - answer.quantity;
+                let orderPrice = parseInt(res[0].price) * parseInt(orderQuantity);
+                console.log(`
+orderID ${orderID}
+orderQuantity ${orderQuantity}
+newQuantity ${newQuantity}
+orderPrice ${orderPrice}
+`)
+              } if (err) throw err;
+              // let data = [
+              //   ["", "", 'BAMAZON ITEMS INVENTORY', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
+              // ];
+              // data.push([
+              //   res[0].product_name,
+              //   (chalk.blue(` ${res[0].item_id}`)),
+              //   res[0].department_name,
+              //   (`$ ${res[0].price}`),
+              //   res[0].stock_quantity,
+              // ]);
+              // let output = table.table(data);
+
+              // console.log(output);
+
+
+
+              goBackCustomer();
+            }
+          );
+
+        });
+    })
   }
 }
+
+
 module.exports = Customer;
