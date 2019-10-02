@@ -1,3 +1,6 @@
+
+
+
 // creates the connection in mysql: requiring inquirer.
 var mysql = require("mysql");
 var inquirer = require("inquirer");
@@ -11,7 +14,6 @@ var connection = mysql.createConnection({
   database: "bamazon_db"
 });
 var employeePortal = require("./manager.js");
-// const table = require("table");
 
 // connects to the database and shows the connection
 connection.connect(function (err) {
@@ -30,7 +32,7 @@ var Customer = function customerPortal() {
     }).then(function (answer) {
       if (answer.action === "go back to Customer Portal") {
         customerPortal();
-      } else if (answer.action === "proceed to Employees Portal") {
+      } else if (answer.action === "proceed to Employee Portal") {
         //need to export this
         employeePortal();
 
@@ -47,18 +49,12 @@ var Customer = function customerPortal() {
       type: "list",
       name: "action",
 
-      choices: ["Browse Store Inventory", "View Low Inventory", "Add New Product", "Change Amount in Inventory", "Delete Item from Inventory", "Exit"]
+      choices: ["Browse Store Inventory", "Buy an Item", "Exit"]
     }).then(function (answer) {
       if (answer.action === "Browse Store Inventory") {
         viewInventory();
-      } else if (answer.action === "View Low Inventory") {
-        viewLowInventory();
-      } else if (answer.action === "Add New Product") {
-        addNewProduct();
-      } else if (answer.action === "Change Amount in Inventory") {
-        addToLowInventory();
-      } else if (answer.action === "Delete Item from Inventory") {
-        deleteProduct();
+      } else if (answer.action === "Buy an Item") {
+        buyInventory();
       } else if (answer.action === "Exit") {
 
         console.log("You have exited!")
@@ -66,8 +62,7 @@ var Customer = function customerPortal() {
           process.exit();
         });
       }
-    })
-
+    });
   function viewInventory() {
     connection.query("SELECT * FROM products", function (err, res) {
       let data = [
@@ -78,170 +73,37 @@ var Customer = function customerPortal() {
           res[i].product_name,
           res[i].item_id,
           res[i].department_name,
-          res[i].price,
-          res[i].stock_quantity,
+          (`$ ${res[i].price}`),
+          (chalk.green(` ${res[i].stock_quantity}`)),
         ]);
       }
       let output = table.table(data);
       console.log(`
-      `);
+        `);
       console.log(output);
 
       goBackCustomer();
     });
 
   }
-
-  //  "View Low Inventory"
-  function viewLowInventory() {
-    connection.query("SELECT count(*),item_id, product_name, department_name, price, stock_quantity FROM products WHERE stock_quantity <= 5 group by item_id, product_name, department_name, price, stock_quantity ORDER BY stock_quantity", function (err, res) {
-      let data = [
-        ["", "", 'LOW ITEMS INVENTORY', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
-      ];
-      for (let i = 0; i < res.length; i++) {
-        data.push([
-          res[i].product_name,
-          res[i].item_id,
-          res[i].department_name,
-          res[i].price,
-          res[i].stock_quantity,
-        ]);
-      }
-      let output = table.table(data);
-      console.log(`
-    `);
-      console.log(output);
-
-      //option menu to go back
-      goBackCustomer();
-    });
-
-  }
-
-  // //  "Add New Product"
-  // function addNewProduct() {
-  //   console.log(`
-  //   i did c
-  //   `);
-  //   //option menu to go back
-  //   goBackCustomer();
-  // };
-
-  function addNewProduct() {
-    // prompt for info about the item being put up for auction
+  function buyInventory() {
     inquirer
       .prompt([
         {
           name: "item",
           type: "input",
-          message: "What is the name of the item you would like to submit?"
-        },
-        {
-          name: "dept",
-          type: "input",
-          message: "Which department would you like to place your item in?"
-        },
-        {
-          name: "price",
-          type: "input",
-          message: "What would you like the price to be?",
-          validate: function (value) {
-            if (isNaN(value)) {
-              return false;
-            } else {
-              return true;
-            }
-          }
+          message: "What is the item ID of the item would you like to buy?"
         },
         {
           name: "quantity",
           type: "input",
-          message: "How many items do you have?",
-        }
-      ])
-      .then(function (answer) {
-        // when finished prompting, insert a new item into the db with that info
-        connection.query(
-          "INSERT INTO products SET ?",
-          {
-            product_name: answer.item,
-            department_name: answer.dept,
-            price: answer.price,
-            stock_quantity: answer.quantity
-          }, function (err) {
-            if (err) throw err;
-            console.log(`Your item ${answer.item} was created successfully in the ${answer.dept}! department`);
-            //go back function
-            goBackCustomer();
-          }
-        );
-      });
-
-  }
-
-  function addToLowInventory() {
-    //id like to show the table here
-    inquirer
-      .prompt([
-        {
-          name: "item",
-          type: "input",
-          message: "What is the item id number you would like to add to?"
-        },
-        {
-          name: "quantity",
-          type: "input",
-          message: "What is the total amount you would like?"
+          message: "How many would you like?"
         }
       ])
       .then(function (answer) {
         connection.query(
 
-          "UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?",
-
-          [answer.quantity, answer.item],
-          function (err) {
-            if (err) throw err;
-            //it'd be nice to show the final table cell update and name here
-            console.log(`You have successfully updated ${answer.item} quantity to ${answer.quantity}`);
-            //go back function
-            goBackCustomer();
-          }
-        );
-      })
-  }
-
-
-  function deleteProduct() {
-    inquirer
-      .prompt([
-        {
-          name: "item",
-          type: "input",
-          message: "What is the item id of the item you would like to delete?",
-          validate: function (value) {
-            if (isNaN(value)) {
-              return false;
-            } else {
-              return true;
-            }
-          }
-        }
-      ])
-      .then(function (answer) {
-        connection.query(
-          "DELETE FROM products WHERE ?",
-          [{
-            item_id: answer.item
-          }],
-          function (err) {
-            if (err) throw err;
-            //it'd be nice to show the final table cell update and name here
-            console.log(`You have successfully deleted inventory with the item Id ${answer.item}!`);
-            //go back function
-            goBackCustomer();
-          }
-        );
+        )
       })
   }
 }

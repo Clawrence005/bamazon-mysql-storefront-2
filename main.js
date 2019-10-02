@@ -22,7 +22,7 @@ connection.connect(function (err) {
 // the start function called asks which portal you would like to enter
 
 function startFunction() {
-  console.log("connection :", connection)
+  // console.log("connection :", connection)
   // console.clear();
   console.log("hello im the startFunction");
 
@@ -30,8 +30,11 @@ function startFunction() {
     .prompt({
       name: "action",
       type: "list",
-      message: console.log(chalk.blue(`Welcome to ${chalk.whiteBright.bold('BAMAZON')} CLI Storehouse. 
-      Are you a Customer or Employee?`)),
+      message: console.log(chalk.blue(`
+      Welcome to ${chalk.whiteBright.bold('BAMAZON')} CLI Storehouse. 
+       
+      Are you a Customer or Employee?
+      `)),
       choices: [
         "Customer",
         "Employee",
