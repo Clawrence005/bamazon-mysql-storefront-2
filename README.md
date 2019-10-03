@@ -16,8 +16,8 @@ Bamazon is a Command-Line Interface application in which the command line in the
 
 ### The Customer Portal ###
 Customer Options: 
-- *See All Store Inventory
-- *Search for Items by id number and then order appropriate amount or return feed on insufficient quantity.
+- See All Store Inventory
+- Search for Items by id number and then order appropriate amount or return feed on insufficient quantity.
 
 ### The Employee Portal ###
 Employee Options: 
