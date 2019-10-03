@@ -26,7 +26,7 @@ Employee Options:
 - Add New Product to Inventory
 - Exit the Program
 
-In the command line start by typing the words **`node`** then the file name **`bamazonCustomer.js`**. the the User will follow the commands and use the arrow keys to answer the prompts highlighted in blue. and the the keyboard itself. 
+In the command line start by typing the words **`node`** then the file name **`main.js`**. Alternatively one can type the start command **`npm run start`**.  User will follow the commands and use the arrow keys to answer the prompts highlighted in blue using the keyboard. 
 
 ## Customer View ##
 
