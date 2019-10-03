@@ -46,7 +46,7 @@ var Employee = function employeePortal() {
       type: "list",
       name: "action",
 
-      choices: ["Browse Store Inventory", "View Low Inventory", "Add New Product", "Change Quantity in Inventory", "Delete Item from Inventory", "Exit"]
+      choices: ["Browse Store Inventory", "View Low Inventory", "Add New Product", "Add Quantity to Inventory", "Delete Item from Inventory", "Exit"]
     }).then(function (answer) {
       if (answer.action === "Browse Store Inventory") {
         viewInventory();
@@ -54,7 +54,7 @@ var Employee = function employeePortal() {
         viewLowInventory();
       } else if (answer.action === "Add New Product") {
         addNewProduct();
-      } else if (answer.action === "Change Quantity in Inventory") {
+      } else if (answer.action === "Add Quantity to Inventory") {
         addToLowInventory();
       } else if (answer.action === "Delete Item from Inventory") {
         deleteProduct();
@@ -132,11 +132,19 @@ var Employee = function employeePortal() {
           name: "price",
           type: "input",
           message: "What would you like the price to be?",
+          validate: function (value) {
+            var valid = !isNaN(parseFloat(value));
+            return valid || "Please enter a number";
+          },
         },
         {
           name: "quantity",
           type: "input",
           message: "How many items do you have?",
+          validate: function (value) {
+            var valid = !isNaN(parseFloat(value));
+            return valid || "Please enter a number";
+          },
         }
       ])
       .then(function (answer) {
@@ -151,7 +159,7 @@ var Employee = function employeePortal() {
           }, function (err) {
             if (err) throw err;
             console.log(chalk.blue(`
-            Your item ${answer.item} was created successfully in the ${answer.dept} department!
+            Your item, ${answer.item} was created successfully in the ${answer.dept} department!
         `));
             //go back function
             goBackEmployee();
@@ -162,37 +170,64 @@ var Employee = function employeePortal() {
   }
 
   function addToLowInventory() {
-    //id like to show the table here
-    inquirer
-      .prompt([
-        {
-          name: "item",
-          type: "input",
-          message: "What is the item id number you would like to add to?"
-        },
-        {
-          name: "quantity",
-          type: "input",
-          message: "What is the total amount you would like?"
-        }
-      ])
-      .then(function (answer) {
-        connection.query(
-
-          "UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?",
-
-          [answer.quantity, answer.item],
-          function (err) {
-            if (err) throw err;
-            //it'd be nice to show the final table cell update and name here
-            console.log(`
-            You have successfully updated ${ answer.item} quantity to ${answer.quantity}
-        `);
-            //go back to portal
-            goBackEmployee();
+    // shows the user the inventory first
+    connection.query("SELECT * FROM products", function (err, res) {
+      let data = [
+        ["", "", 'BAMAZON ITEMS INVENTORY', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
+      ];
+      for (let i = 0; i < res.length; i++) {
+        data.push([
+          res[i].product_name,
+          (chalk.blue(` ${res[i].item_id}`)),
+          res[i].department_name,
+          (`$ ${res[i].price}`),
+          res[i].stock_quantity,
+        ]);
+      }
+      let output = table.table(data);
+      console.log(`
+    `);
+      console.log(output);
+      if (err) throw err;
+      inquirer
+        .prompt([
+          {
+            name: "item",
+            type: "input",
+            message: "What is the item id number you would like to add to?",
+            validate: function (value) {
+              var valid = !isNaN(parseFloat(value));
+              return valid || "Please enter a number";
+            },
+          },
+          {
+            name: "quantity",
+            type: "input",
+            message: "What amount would you like to add?",
+            validate: function (value) {
+              var valid = !isNaN(parseFloat(value));
+              return valid || "Please enter a number";
+            }
           }
-        );
-      })
+        ])
+        .then(function (answer) {
+          connection.query(
+
+            "UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?",
+
+            [parseInt(answer.quantity), answer.item],
+            function (err) {
+              if (err) throw err;
+              //it'd be nice to show the final table cell update and name here
+              console.log(`
+            You have successfully added ${answer.quantity} to item ID ${answer.item}!  
+        `);
+              //go back to portal
+              goBackEmployee();
+            }
+          );
+        })
+    })
   }
 
   function deleteProduct() {
@@ -202,6 +237,10 @@ var Employee = function employeePortal() {
           name: "item",
           type: "input",
           message: (chalk.red(`What is the ${chalk.red.bold('item id')} of the item you would like to delete? `)),
+          validate: function (value) {
+            var valid = !isNaN(parseFloat(value));
+            return valid || "Please enter a number";
+          }
         }
       ])
       .then(function (answer) {

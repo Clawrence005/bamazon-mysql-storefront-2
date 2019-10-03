@@ -85,11 +85,6 @@ var Customer = function customerPortal() {
       goBackCustomer();
     });
   }
-  // get the item by id
-  // need to compare the desired orderQuantity from the actual amout
-  // if (the amount is equal to or greater) {than you can buy it}
-  // else { send error that the amount is insufficent and go back to portal}
-
 
   function buyInventory() {
     // shows the user the inventory first
@@ -116,12 +111,20 @@ var Customer = function customerPortal() {
           {
             name: "item",
             type: "input",
-            message: "What is the item id you would like to buy?"
+            message: "What is the item id you would like to buy?",
+            validate: function (value) {
+              var valid = !isNaN(parseFloat(value));
+              return valid || "Please enter a number";
+            }
           },
           {
             name: "quantity",
             type: "input",
-            message: "How many items would you like to buy?"
+            message: "How many items would you like to buy?",
+            validate: function (value) {
+              var valid = !isNaN(parseFloat(value));
+              return valid || "Please enter a number";
+            },
           },
         ])
         .then(function (answer) {
@@ -131,7 +134,7 @@ var Customer = function customerPortal() {
             function (err, res) {
               if (res.length === 0) {
                 console.log(chalk.red(`
-                That Item id does not exist!
+               Item ${answer.item} does not exist!
 
                 Please try again.
                 `));
@@ -190,13 +193,14 @@ orderPrice ${orderPrice}
 
 function updateBoughtItem(newQuantity, orderID) {
   connection.query(
-    // UPDATE products SET stock_quantity = ? WHERE item_id = ? and stock_quantity >= answer.quantity
 
     "UPDATE products SET stock_quantity= ? WHERE item_id= ? ", [newQuantity, orderID],
     function (err) {
       if (err) throw err;
-      console.log("Your item was created successfully!");
-      // re-prompt the user for if they want to bid or post
+      console.log(`
+      You have bought your item successfully!
+      `);
+
     }
   );
 }
