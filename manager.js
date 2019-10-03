@@ -150,9 +150,9 @@ var Employee = function employeePortal() {
             stock_quantity: answer.quantity
           }, function (err) {
             if (err) throw err;
-            console.log(`
-            Your item ${ answer.item} was created successfully in the ${answer.dept}! department
-        `);
+            console.log(chalk.blue(`
+            Your item ${answer.item} was created successfully in the ${answer.dept} department!
+        `));
             //go back function
             goBackEmployee();
           }
