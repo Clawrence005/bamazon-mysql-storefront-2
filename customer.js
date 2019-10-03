@@ -125,18 +125,23 @@ var Customer = function customerPortal() {
           },
         ])
         .then(function (answer) {
-          console.log(`
-          answer  ${answer.item}
-
-          `)
 
           connection.query("SELECT  product_name, item_id, department_name, price, stock_quantity FROM products where item_id = ? group by product_name, item_id, department_name, price, stock_quantity",
             [answer.item],
             function (err, res) {
-              console.log('res', res);
+              if (res.length === 0) {
+                console.log(chalk.red(`
+                That Item id does not exist!
+
+                Please try again.
+                `));
+
+                goBackCustomer(); return;
+              }
               let orderID = res[0].item_id;
 
               let orderQuantity = answer.quantity;
+
               if (orderQuantity <= res[0].stock_quantity) {
                 let newQuantity = res[0].stock_quantity - answer.quantity;
                 let orderPrice = parseInt(res[0].price) * parseInt(orderQuantity);
@@ -146,31 +151,53 @@ orderQuantity ${orderQuantity}
 newQuantity ${newQuantity}
 orderPrice ${orderPrice}
 `)
+
+
+                let data = [
+                  ["", "", 'ITEMS IN YOUR CART', "", ""], ["Product Name", "Department Name", "Quantity", "Price per Item", "Price of Total Order $"]
+                ];
+                data.push([
+                  (chalk.blue(` ${res[0].product_name}`)),
+                  res[0].department_name,
+                  orderQuantity,
+                  (`$ ${res[0].price}`),
+                  (`$ ${orderPrice}`),
+
+                ]);
+                let output = table.table(data);
+
+                console.log(output);
+
+                // call update function
+                updateBoughtItem(newQuantity, orderID)
+              }
+              else {
+                console.log(chalk.red(`
+                There is insufficient stock to fill your order of ${orderQuantity} ${res[0].product_name}!
+
+                Please try again.
+                `));
               } if (err) throw err;
-              // let data = [
-              //   ["", "", 'BAMAZON ITEMS INVENTORY', "", ""], ["Product Name", "ID #", "Department Name", "Price $", "Quantity in Stock"]
-              // ];
-              // data.push([
-              //   res[0].product_name,
-              //   (chalk.blue(` ${res[0].item_id}`)),
-              //   res[0].department_name,
-              //   (`$ ${res[0].price}`),
-              //   res[0].stock_quantity,
-              // ]);
-              // let output = table.table(data);
-
-              // console.log(output);
-
 
 
               goBackCustomer();
-            }
-          );
+            });
 
-        });
+        })
     })
   }
 }
 
+function updateBoughtItem(newQuantity, orderID) {
+  connection.query(
+    // UPDATE products SET stock_quantity = ? WHERE item_id = ? and stock_quantity >= answer.quantity
 
+    "UPDATE products SET stock_quantity= ? WHERE item_id= ? ", [newQuantity, orderID],
+    function (err) {
+      if (err) throw err;
+      console.log("Your item was created successfully!");
+      // re-prompt the user for if they want to bid or post
+    }
+  );
+}
 module.exports = Customer;
