@@ -10,8 +10,8 @@ Bamazon is a Command-Line Interface application in which the command line in the
 - Chalk
 - Table
 
-~## [Click here](https://drive.google.com/file/d/1Dt1Ds9Y2sGi4SZffwq3Vv4DRcR4KoXeP/view) to watch a video on how to navigate the Bamazon App~
-## Will be adding a GIF soon.
+~[Click here](https://drive.google.com/file/d/1Dt1Ds9Y2sGi4SZffwq3Vv4DRcR4KoXeP/view) to watch a video on how to navigate the Bamazon App~
+ Will be update a GIF soon.
 
 ### The Customer Portal ###
 Customer Options: 
