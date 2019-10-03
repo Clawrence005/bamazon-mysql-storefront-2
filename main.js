@@ -16,16 +16,12 @@ var employeePortal = require("./manager.js");
 // connects to the database and shows the connection
 connection.connect(function (err) {
   if (err) throw err;
-  console.log("connected as id :" + connection.threadId);
+  // console.log("connected as id :" + connection.threadId);
   startFunction();
 });
 // the start function called asks which portal you would like to enter
 
 function startFunction() {
-  // console.log("connection :", connection)
-  // console.clear();
-  console.log("hello im the startFunction");
-
   inquirer
     .prompt({
       name: "action",
@@ -44,13 +40,10 @@ function startFunction() {
       if (answer.action === "Employee") {
         employeePortal();
       } else if (answer.action === "Customer") {
-
         customerPortal();
-
       } else if (answer.action === "Exit") {
         connection.end();
       }
-
     })
 }
 
