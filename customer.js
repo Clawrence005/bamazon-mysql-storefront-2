@@ -160,7 +160,7 @@ orderPrice ${orderPrice}
                   ["", "", 'ITEMS IN YOUR CART', "", ""], ["Product Name", "Department Name", "Quantity", "Price per Item", "Price of Total Order $"]
                 ];
                 data.push([
-                  (chalk.blue(` ${res[0].product_name}`)),
+                  res[0].product_name,
                   res[0].department_name,
                   orderQuantity,
                   (`$ ${res[0].price}`),
